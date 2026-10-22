@@ -4,7 +4,7 @@ A mini SQL Engine on Rust
 
 ## Core functionality (temporal plan)
 
-- [ ] Store data in memory (one table, typed columns, `CREATE TABLE`, `INSERT`, `INT`, `FLOAT`, `TEXT`, `BOOL`)
+- [x] Store data in memory (one table, typed columns, `CREATE TABLE`, `INSERT`, `INT`, `FLOAT`, `TEXT`, `BOOL`)
 - [ ] Interactive terminal (REPL)
 - [ ] `SELECT` with column lists, `*`, aliases, `DISTINCT`
 - [ ] `WHERE` with basic operators (`=`, `!=`, `<`, `>`, `AND`, `OR`, `NOT`, `IS NULL`)
