@@ -1,7 +1,30 @@
+use crate::core::DataType;
+use std::fmt;
+
 #[derive(Debug, PartialEq)]
 pub enum Token {
     Select,
     Star,
+    Create,
+    Open,
+    Close,
+    Type(DataType),
+    Name(String),
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let t = match self {
+            Token::Select => "SELECT",
+            Token::Star => "*",
+            Token::Create => "CREATE",
+            Token::Open => "(",
+            Token::Close => ")",
+            Token::Type(data_type) => return write!(f, "{}", data_type),
+            Token::Name(n) => n,
+        };
+        write!(f, "{}", t)
+    }
 }
 
 impl Token {
@@ -11,7 +34,14 @@ impl Token {
             match word.to_uppercase().as_str() {
                 "SELECT" => tokens.push(Token::Select),
                 "*" => tokens.push(Token::Star),
-                _ => return Err(format!("unknown term '{}'", word)),
+                "CREATE" => tokens.push(Token::Create),
+                "INT" => tokens.push(Token::Type(DataType::Int)),
+                "FLOAT" => tokens.push(Token::Type(DataType::Float)),
+                "TEXT" => tokens.push(Token::Type(DataType::Text)),
+                "BOOL" => tokens.push(Token::Type(DataType::Bool)),
+                "(" => tokens.push(Token::Open),
+                ")" => tokens.push(Token::Close),
+                _ => tokens.push(Token::Name(word.to_string())),
             }
         }
         Ok(tokens)
@@ -30,7 +60,21 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_unkown_term() {
-        assert!(Token::tokenize("insert").is_err());
+    fn tokenize_create() {
+        let result = Token::tokenize("CREATE USERS ( id INT name TEXT )");
+
+        assert_eq!(
+            result,
+            Ok(vec![
+                Token::Create,
+                Token::Name("USERS".to_string()),
+                Token::Open,
+                Token::Name("id".to_string()),
+                Token::Type(DataType::Int),
+                Token::Name("name".to_string()),
+                Token::Type(DataType::Text),
+                Token::Close,
+            ])
+        );
     }
 }

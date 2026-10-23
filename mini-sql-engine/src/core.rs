@@ -20,13 +20,25 @@ impl fmt::Display for DataType {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Value {
     Null,
     Int(i64),
     Float(f64),
     Text(String),
     Bool(bool),
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Value::Null => write!(f, "NULL"),
+            Value::Int(i) => write!(f, "{}", i),
+            Value::Float(x) => write!(f, "{}", x),
+            Value::Text(s) => write!(f, "{}", s),
+            Value::Bool(b) => write!(f, "{}", b),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -41,6 +53,7 @@ impl fmt::Display for Column {
     }
 }
 
+#[derive(Clone)]
 pub struct Table {
     pub name: String,
     pub columns: Vec<Column>,

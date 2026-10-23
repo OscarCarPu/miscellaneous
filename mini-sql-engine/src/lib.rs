@@ -4,13 +4,13 @@ mod run;
 mod tokenizer;
 
 pub use crate::core::{Column, DataType, Table, Value};
-pub use crate::run::run;
+pub use crate::run::Database;
 pub use crate::tokenizer::Token;
 
-pub fn execute(sql: &str, table: &Table) -> Result<String, String> {
+pub fn execute(sql: &str, database: &mut Database) -> Result<String, String> {
     let tokens = Token::tokenize(sql)?;
-    let (columns, rows) = run(tokens, table)?;
-    Ok(format!("{:?}, {:?}", columns, rows))
+    let result = database.run(tokens)?;
+    Ok(result.to_string())
 }
 
 #[cfg(test)]
@@ -28,11 +28,23 @@ mod tests {
         );
         table.insert(vec![Value::Int(1)]).unwrap();
 
-        let output = execute("select *", &table).unwrap();
+        let mut database = Database {
+            tables: vec![table],
+        };
 
-        assert_eq!(
-            output,
-            "[Column { name: \"id\", data_type: Int }], [[Int(1)]]"
-        );
+        let output = execute("select *", &mut database).unwrap();
+
+        assert_eq!(output, "id(Int)\n1\n");
+    }
+
+    #[test]
+    fn create_then_select_query() {
+        let mut database = Database { tables: vec![] };
+
+        let created = execute("CREATE PETS ( id INT name TEXT )", &mut database).unwrap();
+        let selected = execute("select *", &mut database).unwrap();
+
+        assert_eq!(created, "table 'PETS' created");
+        assert_eq!(selected, "id(Int) | name(Text)\n");
     }
 }
