@@ -24,6 +24,7 @@ impl fmt::Display for QueryResult {
     }
 }
 
+#[derive(Default)]
 pub struct Database {
     pub tables: Vec<Table>,
 }
